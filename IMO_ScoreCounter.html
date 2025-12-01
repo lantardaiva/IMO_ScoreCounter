@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Author: Lantar Daiva @lantardaiva on IG -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Indonesia Medical Olympiad 2025 Scoreboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // Custom Brand Colors
+              brand: {
+                red: "#EC222C", // Main Red
+                redDark: "#C01B23", // Hover Red
+                black: "#030303", // Secondary Black
+                gray: "#f8f8f8", // Light background
+              },
+              success: "#22c55e",
+              warning: "#eab308",
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              mono: ["Montserrat", "monospace"], // Using Montserrat for numbers too for consistency
+            },
+            animation: {
+              "pulse-fast": "pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #ffffff;
+        /* Subtle dot pattern for texture */
+        background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+        background-size: 20px 20px;
+      }
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .score-display {
+        font-variant-numeric: tabular-nums;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #ffffff;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ec222c;
+        border-radius: 4px;
+      }
+      .timer-warning {
+        color: #ec222c;
+        animation: pulse 1s infinite;
+      }
+
+      /* Typography adjustments for the new font */
+      h1 {
+        letter-spacing: -0.02em;
+      }
+    </style>
+  </head>
+  <body class="text-brand-black h-screen flex flex-col overflow-hidden">
+    <!-- Navbar / Header -->
+    <header class="bg-brand-red text-white shadow-lg z-20 shrink-0 border-b-4 border-brand-black">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <div class="bg-white text-brand-red p-2.5 rounded-lg font-bold text-2xl shadow-sm">
+            <i class="fa-solid fa-staff-snake"></i>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-black uppercase tracking-tight leading-none">Indonesia Medical Olympiad 2025</h1>
+            <p class="text-[10px] md:text-xs text-white/90 font-semibold tracking-wider mt-1 uppercase">Ikatan Senat Mahasiswa Kedokteran Indonesia</p>
+          </div>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="hidden md:flex bg-brand-black/20 rounded-lg p-1 backdrop-blur-sm border border-white/10">
+          <button onclick="setMode('mandatory')" id="btn-mode-mandatory" class="px-5 py-2 rounded-md text-sm font-bold transition-all duration-200"><i class="fa-solid fa-book-medical mr-2"></i>Wajib</button>
+          <button onclick="setMode('passoff')" id="btn-mode-passoff" class="px-5 py-2 rounded-md text-sm font-bold transition-all duration-200"><i class="fa-solid fa-bolt mr-2"></i>Rebutan</button>
+        </div>
+
+        <div class="flex gap-2">
+          <button onclick="toggleMute()" id="mute-btn" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition" title="Toggle Sound">
+            <i class="fa-solid fa-volume-high"></i>
+          </button>
+          <button onclick="toggleSettings()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition" title="Global Settings">
+            <i class="fa-solid fa-sliders"></i>
+          </button>
+          <button onclick="resetAll()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-black transition text-white" title="Reset All Data">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Mode Switcher -->
+      <div class="md:hidden flex bg-brand-black p-2 justify-center gap-2">
+        <button onclick="setMode('mandatory')" id="btn-mode-mandatory-mobile" class="flex-1 px-4 py-2 rounded font-bold text-xs uppercase tracking-wide transition-all">Wajib</button>
+        <button onclick="setMode('passoff')" id="btn-mode-passoff-mobile" class="flex-1 px-4 py-2 rounded font-bold text-xs uppercase tracking-wide transition-all">Rebutan</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto bg-white">
+      <!-- Timer Section -->
+      <div class="glass-panel rounded-xl shadow-sm p-4 mb-8 max-w-3xl mx-auto w-full text-center relative border-t-4 border-brand-red bg-brand-gray">
+        <h2 class="text-xs font-extrabold text-brand-black/50 uppercase tracking-[0.2em] mb-2">Competition Timer</h2>
+        <div id="timer-display" class="text-8xl font-bold text-brand-black mb-6 transition-colors tracking-tight">00:00</div>
+
+        <div class="flex justify-center gap-2 mb-6 flex-wrap">
+          <button onclick="setTimer(15)" class="bg-white hover:bg-gray-100 text-brand-black border border-gray-200 px-6 py-2 rounded font-bold text-sm transition shadow-sm">15s</button>
+          <button onclick="setTimer(10)" class="bg-white hover:bg-gray-100 text-brand-black border border-gray-200 px-6 py-2 rounded font-bold text-sm transition shadow-sm">10s</button>
+          <button onclick="setTimer(5)" class="bg-white hover:bg-gray-100 text-brand-black border border-gray-200 px-6 py-2 rounded font-bold text-sm transition shadow-sm">5s</button>
+          <button onclick="openCustomTimerModal()" class="bg-brand-black text-white hover:bg-gray-800 px-6 py-2 rounded font-bold text-sm transition shadow-md"><i class="fa-solid fa-clock mr-2"></i>Custom</button>
+        </div>
+
+        <div class="flex justify-center gap-6">
+          <button onclick="startTimer()" class="w-14 h-14 rounded-full bg-success hover:bg-green-600 text-white shadow-lg flex items-center justify-center text-xl transition-transform active:scale-95 border-4 border-white">
+            <i class="fa-solid fa-play ml-1"></i>
+          </button>
+          <button onclick="pauseTimer()" class="w-14 h-14 rounded-full bg-warning hover:bg-yellow-500 text-white shadow-lg flex items-center justify-center text-xl transition-transform active:scale-95 border-4 border-white">
+            <i class="fa-solid fa-pause"></i>
+          </button>
+          <button onclick="resetTimer()" class="w-14 h-14 rounded-full bg-brand-black hover:bg-gray-800 text-white shadow-lg flex items-center justify-center text-xl transition-transform active:scale-95 border-4 border-white">
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+        </div>
+
+        <!-- Active Mode Indicator Pill -->
+        <div id="mode-indicator" class="absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-red text-white shadow-sm">MODE: WAJIB</div>
+      </div>
+
+      <!-- Teams Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 h-full content-start">
+        <div id="teams-container" class="contents"></div>
+      </div>
+    </main>
+
+    <footer class="text-center p-3 bg-brand-black text-white text-xs shrink-0 font-medium">Indonesia Medical Olympiad 2025 &bull; Ikatan Senat Mahasiswa Kedokteran Indonesia</footer>
+
+    <!-- Global Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-brand-black/80 z-50 hidden flex items-center justify-center transition-opacity backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 animate-fade-in border-t-8 border-brand-red">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+          <h3 class="text-xl font-bold text-brand-black uppercase tracking-wide"><i class="fa-solid fa-sliders mr-2 text-brand-red"></i>Settings</h3>
+          <button onclick="toggleSettings()" class="text-gray-400 hover:text-brand-red transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Mandatory Settings -->
+          <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+            <h4 class="font-bold text-brand-red mb-3 text-xs uppercase tracking-widest border-b pb-2">Mode A: Soal Wajib</h4>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Correct</label>
+                <input type="number" id="input-mand-correct" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="100" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Partial</label>
+                <input type="number" id="input-mand-partial" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="50" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Penalty</label>
+                <input type="number" id="input-mand-wrong" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Pass-off Settings -->
+          <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+            <h4 class="font-bold text-brand-black mb-3 text-xs uppercase tracking-widest border-b pb-2">Mode B: Rebutan / Lemparan</h4>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Correct</label>
+                <input type="number" id="input-pass-correct" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="100" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Partial</label>
+                <input type="number" id="input-pass-partial" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="50" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase">Penalty</label>
+                <input type="number" id="input-pass-wrong" class="w-full border-2 border-gray-200 rounded px-2 py-1.5 text-sm font-bold text-center focus:border-brand-red focus:outline-none" value="-50" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+          <button onclick="saveSettings()" class="bg-brand-red hover:bg-brand-redDark text-white px-8 py-3 rounded-lg font-bold shadow-lg transition uppercase tracking-wide text-sm">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Details Modal -->
+    <div id="team-modal" class="fixed inset-0 bg-brand-black/80 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4 transform transition-all border-t-8 border-brand-red">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+          <h3 class="text-xl font-bold text-brand-black uppercase"><i class="fa-solid fa-user-gear mr-2 text-brand-red"></i> Edit Team</h3>
+          <button onclick="closeTeamModal()" class="text-gray-400 hover:text-brand-red transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        </div>
+
+        <div class="space-y-4">
+          <input type="hidden" id="team-modal-index" />
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Team Name</label>
+            <input type="text" id="team-modal-name" class="w-full border-2 border-gray-200 rounded px-3 py-2 font-bold focus:border-brand-red focus:outline-none" placeholder="Enter Team Name" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Team Logo</label>
+            <div class="flex gap-3 items-center">
+              <div id="team-modal-preview" class="w-20 h-20 bg-gray-100 rounded border border-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+                <span class="text-[10px] text-gray-400 font-bold uppercase">No Logo</span>
+              </div>
+              <div class="flex-1 space-y-2">
+                <label class="cursor-pointer bg-brand-black hover:bg-gray-800 text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-wide block text-center transition shadow-sm">
+                  <i class="fa-solid fa-upload mr-1"></i> Upload
+                  <input type="file" id="team-modal-file" class="hidden" accept="image/*" onchange="handleLogoUpload(this)" />
+                </label>
+                <button onclick="removeTeamLogo()" class="text-brand-red text-xs font-bold hover:underline w-full text-center uppercase">Remove Logo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end gap-2">
+          <button onclick="closeTeamModal()" class="px-4 py-2 text-gray-500 hover:text-brand-black font-bold text-sm uppercase">Cancel</button>
+          <button onclick="saveTeamDetails()" class="bg-brand-red hover:bg-brand-redDark text-white px-6 py-2 rounded-lg font-bold shadow-md text-sm uppercase tracking-wide transition">Save Team</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Timer Modal -->
+    <div id="timer-modal" class="fixed inset-0 bg-brand-black/80 z-50 hidden flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm mx-4 transform transition-all scale-100 border-t-8 border-brand-red">
+        <h3 class="text-xl font-bold text-brand-black mb-6 flex items-center uppercase"><i class="fa-solid fa-stopwatch mr-3 text-brand-red"></i> Custom Timer</h3>
+        <div class="mb-6">
+          <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Duration (seconds)</label>
+          <input
+            type="number"
+            id="custom-timer-input"
+            class="w-full border-2 border-gray-200 rounded-lg px-4 py-4 text-4xl font-black text-brand-black text-center focus:border-brand-red outline-none shadow-inner"
+            placeholder="00"
+            autofocus
+          />
+        </div>
+        <div class="flex justify-end gap-3">
+          <button onclick="closeCustomTimerModal()" class="px-5 py-2 text-gray-500 hover:text-brand-black font-bold uppercase text-sm">Cancel</button>
+          <button onclick="submitCustomTimer()" class="bg-brand-red hover:bg-brand-redDark text-white px-6 py-2 rounded-lg font-bold shadow-md uppercase tracking-wide transition">Set Timer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+      // --- State Management ---
+      const DEFAULT_STATE = {
+        teams: [
+          { name: "Team A", score: 0, logo: null },
+          { name: "Team B", score: 0, logo: null },
+          { name: "Team C", score: 0, logo: null },
+          { name: "Team D", score: 0, logo: null },
+          { name: "Team E", score: 0, logo: null },
+        ],
+        mode: "mandatory",
+        settings: {
+          mandatory: { correct: 100, partial: 50, wrong: 0 },
+          passoff: { correct: 100, partial: 50, wrong: -50 },
+        },
+        isMuted: false,
+      };
+
+      let appState = JSON.parse(localStorage.getItem("imo2025_state")) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+      if (!appState.settings.mandatory.partial) appState.settings.mandatory.partial = 50;
+      if (!appState.settings.passoff.partial) appState.settings.passoff.partial = 50;
+      appState.teams.forEach((t) => {
+        if (!t.hasOwnProperty("logo")) t.logo = null;
+      });
+
+      let timerInterval;
+      let timeLeft = 0;
+      let isTimerRunning = false;
+      let tempLogoData = null;
+
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext();
+
+      function playSound(type) {
+        if (appState.isMuted) return;
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === "correct") {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.5);
+        } else if (type === "partial") {
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+          osc.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.4);
+        } else if (type === "wrong") {
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+          osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.4);
+        } else if (type === "timeout") {
+          osc.type = "square";
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+          gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 1.0);
+        }
+      }
+
+      // --- Core Functions ---
+
+      function init() {
+        renderTeams();
+        setMode(appState.mode, false);
+
+        // Restore Settings Inputs
+        document.getElementById("input-mand-correct").value = appState.settings.mandatory.correct;
+        document.getElementById("input-mand-partial").value = appState.settings.mandatory.partial;
+        document.getElementById("input-mand-wrong").value = appState.settings.mandatory.wrong;
+        document.getElementById("input-pass-correct").value = appState.settings.passoff.correct;
+        document.getElementById("input-pass-partial").value = appState.settings.passoff.partial;
+        document.getElementById("input-pass-wrong").value = appState.settings.passoff.wrong;
+
+        updateMuteIcon();
+
+        document.getElementById("custom-timer-input").addEventListener("keypress", function (e) {
+          if (e.key === "Enter") submitCustomTimer();
+        });
+      }
+
+      function renderTeams() {
+        const container = document.getElementById("teams-container");
+        container.innerHTML = "";
+
+        appState.teams.forEach((team, index) => {
+          // All cards use red theme now per request
+          const color = "border-brand-red";
+
+          const logoHtml = team.logo ? `<img src="${team.logo}" class="h-20 w-auto object-contain mb-3 mx-auto drop-shadow-md" alt="Logo">` : "";
+
+          const html = `
+                <div class="team-card glass-panel rounded-xl shadow-lg border-t-8 ${color} flex flex-col overflow-hidden transition hover:shadow-xl" data-team="${index}">
+                    <div class="p-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                        <div class="font-bold text-lg text-brand-black px-2 truncate flex-1 text-center" title="${team.name}">${team.name}</div>
+                        <button onclick="openTeamModal(${index})" class="text-gray-300 hover:text-brand-red p-1 transition"><i class="fa-solid fa-gear"></i></button>
+                    </div>
+                    <div class="flex-1 flex flex-col items-center justify-center bg-white py-6 relative group">
+                        ${logoHtml}
+                        <div class="text-7xl font-black text-brand-black score-display tracking-tight" id="score-${index}">${team.score}</div>
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col gap-3">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="adjustScore(${index}, 'correct')" class="btn-correct bg-success hover:bg-green-600 text-white py-3 rounded-lg font-bold shadow-sm active:translate-y-0.5 transition flex flex-col items-center justify-center group" title="Add Correct Points">
+                                <span class="text-[10px] uppercase font-bold opacity-80 mb-0.5 group-hover:opacity-100">Benar</span>
+                                <span class="text-lg font-black label-correct">+100</span>
+                            </button>
+                             <button onclick="adjustScore(${index}, 'partial')" class="btn-partial bg-warning hover:bg-yellow-500 text-white py-3 rounded-lg font-bold shadow-sm active:translate-y-0.5 transition flex flex-col items-center justify-center group" title="Add Partial Points">
+                                <span class="text-[10px] uppercase font-bold opacity-80 mb-0.5 group-hover:opacity-100">Partial</span>
+                                <span class="text-lg font-black label-partial">+50</span>
+                            </button>
+                            <button onclick="adjustScore(${index}, 'wrong')" class="btn-wrong bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold shadow-sm active:translate-y-0.5 transition flex flex-col items-center justify-center group" title="Apply Wrong Penalty">
+                                <span class="text-[10px] uppercase font-bold opacity-80 mb-0.5 group-hover:opacity-100">Salah</span>
+                                <span class="text-lg font-black label-wrong">0</span>
+                            </button>
+                        </div>
+                        <div class="flex justify-center gap-2 pt-2 border-t border-gray-200">
+                             <button onclick="manualAdjust(${index}, 10)" class="text-gray-400 hover:text-brand-black text-[10px] uppercase px-2 py-1 bg-white border border-gray-200 rounded font-bold hover:border-brand-black transition"><i class="fa-solid fa-plus"></i> 10</button>
+                             <button onclick="manualAdjust(${index}, -10)" class="text-gray-400 hover:text-brand-black text-[10px] uppercase px-2 py-1 bg-white border border-gray-200 rounded font-bold hover:border-brand-black transition"><i class="fa-solid fa-minus"></i> 10</button>
+                             <button onclick="manualEdit(${index})" class="text-gray-400 hover:text-brand-black text-[10px] uppercase px-2 py-1 bg-white border border-gray-200 rounded font-bold hover:border-brand-black transition" title="Set Score Manually"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                        </div>
+                    </div>
+                </div>`;
+          container.insertAdjacentHTML("beforeend", html);
+        });
+        updateButtonLabels();
+      }
+
+      function saveState() {
+        localStorage.setItem("imo2025_state", JSON.stringify(appState));
+      }
+
+      function updateScoreDisplay(teamIndex) {
+        const scoreEl = document.getElementById(`score-${teamIndex}`);
+        if (scoreEl) {
+          scoreEl.innerText = appState.teams[teamIndex].score;
+          scoreEl.classList.remove("scale-110", "text-brand-red");
+          void scoreEl.offsetWidth;
+          scoreEl.classList.add("transition-transform", "duration-200", "scale-110");
+          setTimeout(() => scoreEl.classList.remove("scale-110"), 200);
+        }
+      }
+
+      function setMode(mode, save = true) {
+        appState.mode = mode;
+        if (save) saveState();
+
+        // Updated for new colors
+        const activeClass = "bg-white text-brand-red shadow-md";
+        const inactiveClass = "text-white/60 hover:text-white hover:bg-white/10";
+
+        const btnMand = document.getElementById("btn-mode-mandatory");
+        const btnPass = document.getElementById("btn-mode-passoff");
+        const btnMandMob = document.getElementById("btn-mode-mandatory-mobile");
+        const btnPassMob = document.getElementById("btn-mode-passoff-mobile");
+
+        [btnMand, btnPass].forEach((btn) => (btn.className = "px-5 py-2 rounded-md text-sm font-bold transition-all duration-200 " + inactiveClass));
+        [btnMandMob, btnPassMob].forEach((btn) => (btn.className = "flex-1 px-4 py-2 rounded font-bold text-xs uppercase tracking-wide transition-all text-white/50 bg-gray-900"));
+
+        if (mode === "mandatory") {
+          btnMand.className = "px-5 py-2 rounded-md text-sm font-bold transition-all duration-200 " + activeClass;
+          btnMandMob.className = "flex-1 px-4 py-2 rounded font-bold text-xs uppercase tracking-wide transition-all bg-brand-red text-white shadow-lg";
+          document.getElementById("mode-indicator").innerText = "MODE: WAJIB";
+          document.getElementById("mode-indicator").className = "absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-red text-white shadow-sm";
+        } else {
+          btnPass.className = "px-5 py-2 rounded-md text-sm font-bold transition-all duration-200 " + activeClass;
+          btnPassMob.className = "flex-1 px-4 py-2 rounded font-bold text-xs uppercase tracking-wide transition-all bg-warning text-white shadow-lg";
+          document.getElementById("mode-indicator").innerText = "MODE: REBUTAN";
+          document.getElementById("mode-indicator").className = "absolute top-4 right-4 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-brand-black text-white shadow-sm";
+        }
+        updateButtonLabels();
+      }
+
+      function updateButtonLabels() {
+        const settings = appState.settings[appState.mode];
+        document.querySelectorAll(".label-correct").forEach((el) => (el.innerText = (settings.correct > 0 ? "+" : "") + settings.correct));
+        document.querySelectorAll(".label-partial").forEach((el) => (el.innerText = (settings.partial > 0 ? "+" : "") + settings.partial));
+        document.querySelectorAll(".label-wrong").forEach((el) => (el.innerText = settings.wrong));
+      }
+
+      function adjustScore(teamIndex, type) {
+        const settings = appState.settings[appState.mode];
+        let change = 0;
+        if (type === "correct") change = parseInt(settings.correct);
+        else if (type === "partial") change = parseInt(settings.partial);
+        else if (type === "wrong") change = parseInt(settings.wrong);
+
+        appState.teams[teamIndex].score += change;
+        updateScoreDisplay(teamIndex);
+        saveState();
+        playSound(type);
+
+        const card = document.querySelector(`.team-card[data-team="${teamIndex}"]`);
+        let color = "bg-gray-100";
+        if (type === "correct") color = "bg-green-50";
+        else if (type === "partial") color = "bg-yellow-50";
+        else if (type === "wrong") color = "bg-red-50";
+
+        card.querySelector(".score-display").parentElement.classList.add(color);
+        setTimeout(() => card.querySelector(".score-display").parentElement.classList.remove(color), 300);
+      }
+
+      function manualAdjust(teamIndex, amount) {
+        appState.teams[teamIndex].score += amount;
+        updateScoreDisplay(teamIndex);
+        saveState();
+      }
+
+      function manualEdit(teamIndex) {
+        const newScore = prompt("Enter new total score:", appState.teams[teamIndex].score);
+        if (newScore !== null && !isNaN(newScore)) {
+          appState.teams[teamIndex].score = parseInt(newScore);
+          updateScoreDisplay(teamIndex);
+          saveState();
+        }
+      }
+
+      function resetAll() {
+        if (confirm("Are you sure you want to reset all scores, names, and logos?")) {
+          localStorage.removeItem("imo2025_state");
+          location.reload();
+        }
+      }
+
+      // --- Team Details Modal Logic ---
+      function openTeamModal(index) {
+        const team = appState.teams[index];
+        document.getElementById("team-modal-index").value = index;
+        document.getElementById("team-modal-name").value = team.name;
+        document.getElementById("team-modal-file").value = "";
+        tempLogoData = team.logo;
+        updateLogoPreview(tempLogoData);
+        document.getElementById("team-modal").classList.remove("hidden");
+      }
+
+      function closeTeamModal() {
+        document.getElementById("team-modal").classList.add("hidden");
+        tempLogoData = null;
+      }
+
+      function updateLogoPreview(src) {
+        const preview = document.getElementById("team-modal-preview");
+        if (src) {
+          preview.innerHTML = `<img src="${src}" class="w-full h-full object-contain">`;
+        } else {
+          preview.innerHTML = `<span class="text-[10px] text-gray-400 font-bold uppercase">No Logo</span>`;
+        }
+      }
+
+      function handleLogoUpload(input) {
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              const MAX_SIZE = 200;
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                if (width > MAX_SIZE) {
+                  height *= MAX_SIZE / width;
+                  width = MAX_SIZE;
+                }
+              } else {
+                if (height > MAX_SIZE) {
+                  width *= MAX_SIZE / height;
+                  height = MAX_SIZE;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
+              tempLogoData = canvas.toDataURL("image/png");
+              updateLogoPreview(tempLogoData);
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      function removeTeamLogo() {
+        tempLogoData = null;
+        updateLogoPreview(null);
+        document.getElementById("team-modal-file").value = "";
+      }
+
+      function saveTeamDetails() {
+        const index = document.getElementById("team-modal-index").value;
+        const newName = document.getElementById("team-modal-name").value;
+
+        appState.teams[index].name = newName;
+        appState.teams[index].logo = tempLogoData;
+
+        saveState();
+        renderTeams();
+        closeTeamModal();
+        showToast("Team Details Updated");
+      }
+
+      // --- Timer Logic ---
+      function updateTimerDisplay() {
+        const display = document.getElementById("timer-display");
+        const minutes = Math.floor(timeLeft / 60)
+          .toString()
+          .padStart(2, "0");
+        const seconds = (timeLeft % 60).toString().padStart(2, "0");
+        display.innerText = `${minutes}:${seconds}`;
+
+        if (timeLeft <= 5 && timeLeft > 0) display.classList.add("timer-warning");
+        else display.classList.remove("timer-warning");
+
+        if (timeLeft === 0) display.classList.add("text-brand-red");
+        else display.classList.remove("text-brand-red");
+      }
+
+      function setTimer(seconds) {
+        pauseTimer();
+        timeLeft = seconds;
+        updateTimerDisplay();
+      }
+
+      function openCustomTimerModal() {
+        document.getElementById("timer-modal").classList.remove("hidden");
+        document.getElementById("custom-timer-input").value = "";
+        document.getElementById("custom-timer-input").focus();
+      }
+
+      function closeCustomTimerModal() {
+        document.getElementById("timer-modal").classList.add("hidden");
+      }
+
+      function submitCustomTimer() {
+        const input = document.getElementById("custom-timer-input").value;
+        if (input && !isNaN(input)) {
+          setTimer(parseInt(input));
+          closeCustomTimerModal();
+        } else {
+          showToast("Please enter a valid number");
+        }
+      }
+
+      function startTimer() {
+        if (isTimerRunning) return;
+        if (timeLeft <= 0) return;
+
+        isTimerRunning = true;
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            pauseTimer();
+            playSound("timeout");
+            showToast("Time's Up!");
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+      }
+
+      function resetTimer() {
+        pauseTimer();
+        timeLeft = 0;
+        updateTimerDisplay();
+      }
+
+      // --- Settings Modal ---
+      function toggleSettings() {
+        document.getElementById("settings-modal").classList.toggle("hidden");
+      }
+
+      function saveSettings() {
+        appState.settings.mandatory.correct = document.getElementById("input-mand-correct").value;
+        appState.settings.mandatory.partial = document.getElementById("input-mand-partial").value;
+        appState.settings.mandatory.wrong = document.getElementById("input-mand-wrong").value;
+
+        appState.settings.passoff.correct = document.getElementById("input-pass-correct").value;
+        appState.settings.passoff.partial = document.getElementById("input-pass-partial").value;
+        appState.settings.passoff.wrong = document.getElementById("input-pass-wrong").value;
+
+        saveState();
+        toggleSettings();
+        updateButtonLabels();
+        showToast("Settings Saved");
+      }
+
+      function toggleMute() {
+        appState.isMuted = !appState.isMuted;
+        saveState();
+        updateMuteIcon();
+      }
+
+      function updateMuteIcon() {
+        const btn = document.getElementById("mute-btn");
+        btn.innerHTML = appState.isMuted ? '<i class="fa-solid fa-volume-xmark text-brand-red"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+      }
+
+      function showToast(message) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "bg-brand-black text-white px-4 py-2 rounded shadow-lg text-sm animate-pulse-fast font-bold uppercase tracking-wide";
+        toast.innerText = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+      }
+
+      window.addEventListener("load", init);
+    </script>
+  </body>
+</html>
