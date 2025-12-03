@@ -75,6 +75,16 @@
       h1 {
         letter-spacing: -0.02em;
       }
+      /* Make fullscreen overlay card bigger */
+      #fullscreen-overlay > div {
+        max-width: 640px; /* wider modal */
+        width: 90%; /* responsive fill */
+        padding: 3rem 3.5rem; /* larger padding */
+      }
+      /* Make overlay message text bigger */
+      #fullscreen-overlay-message {
+        font-size: 4rem; /* roughly text-2xl */
+      }
     </style>
   </head>
   <body class="text-brand-black h-screen flex flex-col overflow-hidden">
@@ -270,8 +280,15 @@
       </div>
     </div>
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Notification Container (no longer used for on-screen toasts, can be kept or removed) -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Fullscreen Overlay -->
+    <div id="fullscreen-overlay" class="fixed inset-0 bg-black/70 z-[9999] hidden flex items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-2xl px-8 py-6 max-w-sm w-[90%] text-center border-t-4 border-brand-red">
+        <p id="fullscreen-overlay-message" class="text-lg font-bold text-brand-black mb-4"></p>
+      </div>
+    </div>
 
     <script>
       // --- State Management ---
@@ -690,13 +707,29 @@
         btn.innerHTML = appState.isMuted ? '<i class="fa-solid fa-volume-xmark text-brand-red"></i>' : '<i class="fa-solid fa-volume-high"></i>';
       }
 
+      let overlayTimeoutId = null;
+
       function showToast(message) {
-        const container = document.getElementById("toast-container");
-        const toast = document.createElement("div");
-        toast.className = "bg-brand-black text-white px-4 py-2 rounded shadow-lg text-sm animate-pulse-fast font-bold uppercase tracking-wide";
-        toast.innerText = message;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
+        // Reuse the same name, but now it shows a fullscreen overlay
+        const overlay = document.getElementById("fullscreen-overlay");
+        const textEl = document.getElementById("fullscreen-overlay-message");
+
+        if (!overlay || !textEl) return;
+
+        textEl.textContent = message;
+        overlay.classList.remove("hidden");
+
+        // Auto-close after 2 seconds (keep behaviour similar to old toast)
+        if (overlayTimeoutId) clearTimeout(overlayTimeoutId);
+        overlayTimeoutId = setTimeout(() => {
+          hideOverlay();
+        }, 2000);
+      }
+
+      function hideOverlay() {
+        const overlay = document.getElementById("fullscreen-overlay");
+        if (!overlay) return;
+        overlay.classList.add("hidden");
       }
 
       window.addEventListener("load", init);
