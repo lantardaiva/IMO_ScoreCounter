@@ -330,7 +330,7 @@
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
           osc.start();
           osc.stop(audioCtx.currentTime + 0.4);
-        } else if (type === "wrong") {
+        } /* else if (type === "wrong") {
           osc.type = "sawtooth";
           osc.frequency.setValueAtTime(150, audioCtx.currentTime);
           osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
@@ -338,7 +338,7 @@
           gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
           osc.start();
           osc.stop(audioCtx.currentTime + 0.4);
-        } else if (type === "timeout") {
+        }*/ else if (type === "timeout") {
           osc.type = "square";
           osc.frequency.setValueAtTime(400, audioCtx.currentTime);
           gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
